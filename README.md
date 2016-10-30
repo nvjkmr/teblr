@@ -1,5 +1,4 @@
-# teblr 
-**te**rminal tum**blr**
+# **teblr** 
 
 We all know that how much pathetic is Tumblr's OAuth, but we tried our best to get you comfort. Now post text, photo, quote, link, audio or video with just a single command from your terminal. Also edit and delete posts at breeze.
 
@@ -67,3 +66,24 @@ optional arguments:
 ```
 
 **NOTE:** Editor support (`-e`) and `tumblr edit` are still under work. Any suggestions are welcome!
+
+# Installation
+Install pip using the following commands:
+```
+$ sudo apt-get install python-pip python-dev build-essential 
+$ sudo pip install --upgrade pip 
+$ sudo pip install --upgrade virtualenv 
+```
+Install teblr using pip:
+```
+$ sudo pip install teblr
+```
+
+# Contribution
+Contributions to this project are very much welcome. Please fork the code!
+
+# License
+Copyright 2016 Vijay Kumar.
+
+The file `/teblr/console.py` is taken from [here](https://github.com/tumblr/pytumblr/blob/master/interactive_console.py).
+Licensed under the Apache License, Version 2.0. More at: http://www.apache.org/licenses/LICENSE-2.0
