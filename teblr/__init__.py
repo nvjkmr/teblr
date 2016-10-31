@@ -21,9 +21,9 @@ def make_post(blog_name, post_type, post_data):
     return resp
 
 
-def edit_post(blog_name, post_id, post_data):
+def edit_post(blog_name, post_data):
     global client
-    return client.edit_post(blog_name, post_data['type'], post_id);
+    return client.edit_post(blog_name, **post_data);
 
 
 def delete_post(blog_name, post_id):

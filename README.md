@@ -1,6 +1,8 @@
 # **teblr** 
 
-We all know that how much pathetic is Tumblr's OAuth, but we tried our best to get you comfort. Now post text, photo, quote, link, audio or video with just a single command from your terminal. Also edit and delete posts at breeze.
+![Tumblr on Termanal](/teblr.png "teblr")
+
+Have you ever asked, how do I use tumblr on terminal? So here we are with *teblr*, a terminal based tool written in Python. We all know that how much pathetic is Tumblr's OAuth, but we tried our best to get you comfort. Now post text, photo, quote, link, audio or video with just a single command from your terminal. Also edit and delete posts at breeze.
 
 We give you three basic features with three sub-commands:
 ```
@@ -47,12 +49,14 @@ optional arguments:
 
 ##`tumblr edit` usage:
 ```
-usage: tumblr edit [-h] -p POST_ID
+usage: tumblr edit [-h] -p POST_ID [-e]
 
 optional arguments:
   -h, --help            show this help message and exit
   -p POST_ID, --post-id POST_ID
                         ID of the post that has to be edited
+  -e, --editor          Open default editor for editing your post. Available
+                        for: text posts
 ```
 
 ##`tumblr delete` usage:
@@ -65,7 +69,7 @@ optional arguments:
                         ID of the post that has to be deleted
 ```
 
-**NOTE:** Editor support (`-e`) and `tumblr edit` are still under work. Any suggestions are welcome!
+**NOTE:** Editor support (`-e`) is available for posting and editing text posts only.
 
 # Installation
 Install pip using the following commands:

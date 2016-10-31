@@ -5,21 +5,31 @@ import urllib
 import urllib2
 import json
 import teblr
+import os, sys, tempfile
+from subprocess import call
 
 def post_action(args):
     blog_name = get_blog_name()
 
-    post_data = {}
+    data_req = dict()
+    data_req['text'] = ['title', 'body']
+    data_req['link'] = ['title', 'description']
+    
+    post_data = dict()
     post_data['state'] = args.state
     # post_data['tags'] = args.tags    # not supported
     post_data['date'] = args.date
     
     if args.text:
         post_type = 'text'
-        data_req = ['title', 'body']
-        console_input = get_post_data(data_req)
-        post_data['title'] = console_input['title']
-        post_data['body'] = console_input['body']
+        if (args.editor):
+            d = get_user_input(data_req['text'])
+            post_data['title'] = d['title']
+            post_data['body'] = d['body']
+        else:
+            console_input = get_post_data(data_req['text'])
+            post_data['title'] = console_input['title']
+            post_data['body'] = console_input['body']
     elif args.video:
         post_type = 'video'
         post_data['caption'] = args.caption
@@ -37,8 +47,7 @@ def post_action(args):
     elif args.link:
         post_type = 'link'
         post_data['url'] = args.url
-        data_req = ['title', 'description']
-        console_input = get_post_data(data_req)
+        console_input = get_post_data(data_req['link'])
         post_data['title'] = console_input['title']
         post_data['description'] = console_input['description']
     elif args.photo:
@@ -62,21 +71,30 @@ def post_action(args):
 
 def edit_action(args):
     blog_name = get_blog_name()
+    print "Fetching previous post"
     prevs_data = extract_post(blog_name, args.post_id) 
     post_type = prevs_data['type']
+    data_req = dict()
+    data_req['text'] = ['title', 'body']
+    data_req['link'] = ['title', 'description', 'url']
     
     # print "Printing previous post data..."
     # for key, value in prevs_data.iteritems(): # dig deep
         # print value
-        # print key + ": " + value
     # print "==="*20
     
     post_data = {}      # holds new data
+    post_data['type'] = post_type   # required in teblr.__init__.py
+    post_data['id'] = args.post_id
     if post_type == 'text':
-        data_req = ['title', 'body']
-        console_input = get_post_data(data_req)
-        post_data['title'] = console_input['title']
-        post_data['body'] = console_input['body']
+        if (args.editor):
+            d = get_user_input(data_req['text'], prevs_data)
+            post_data['title'] = d['title']
+            post_data['body'] = d['body']
+        else:
+            console_input = get_post_data(data_req['text'])
+            post_data['title'] = console_input['title']
+            post_data['body'] = console_input['body']
     elif post_type == 'video':
         data_req = ['caption', 'url']
         console_input = get_post_data(data_req)
@@ -93,8 +111,7 @@ def edit_action(args):
         post_data['caption'] = console_input['caption']
         post_data['external_url'] = console_input['args.url']
     elif post_type == 'link':
-        data_req = ['title', 'description', 'url']
-        console_input = get_post_data(data_req)
+        console_input = get_post_data(data_req['link'])
         post_data['url'] = console_input['url']
         post_data['title'] = console_input['title']
         post_data['description'] = console_input['description']
@@ -106,10 +123,12 @@ def edit_action(args):
         print "Unsupported post type found!"
 
 
-    r = teblr.edit_post(blog_name, args.post_id, post_data)
+    r = teblr.edit_post(blog_name, post_data)
     
-    # if 'meta' in r and 'errors' in r['response']:
-        # print str(r['meta']['status']) + " status code returned! "+ str(r['response']['errors'])
+    if 'meta' in r and 'errors' in r['response']:
+        print str(r['meta']['status']) + " status code returned! "+ str(r['response']['errors'])
+    else:
+        print "Your post has been updated!"
 
 
 def delete_action(args):
@@ -127,6 +146,50 @@ def create_client():
     return console.setup()
 
 
+def get_user_input(input_list, prevs=None):
+    initial_msg = ""
+    LINE_LENGTH = 50
+
+    for i in range(0, len(input_list)):
+        if not prevs:
+            initial_msg += input_list[i] + ": \n"
+        else:
+            initial_msg += input_list[i] + ": " + prevs[input_list[i]]
+        # don't print the line after last element
+        if i != len(input_list)-1:
+            initial_msg += '-'*LINE_LENGTH + "\n"
+
+    print "Choosing default editor from $EDITOR..."
+    editor = os.environ.get('EDITOR', 'nano')
+
+    if not editor:
+        print "Default editor not found! \n Opening in nano..."
+    
+    try:
+        with tempfile.NamedTemporaryFile(suffix='.tmp') as tf:
+            tf.write(initial_msg)
+            tf.flush()
+            call([editor, tf.name])
+            tf.seek(0)
+            edited_msg = tf.read()
+    except:
+        exit("Please set a default editor!")
+
+    edited_msg = edited_msg.split('-'*LINE_LENGTH)
+    
+    if len(edited_msg) != len(input_list):
+        exit("Invalid file format!")
+    
+    for i in range(0, len(input_list)):
+            edited_msg[i] = edited_msg[i][len(input_list[i])+2 :]
+
+    d = {}
+    for i in range(0, len(edited_msg)):
+        d[input_list[i]] = edited_msg[i]
+
+    return d
+
+
 def get_post_data(details_list):
     data = {}   # dictionary for holding data
     for detail in details_list:
@@ -135,29 +198,33 @@ def get_post_data(details_list):
 
 
 def get_blog_name():
-    print "fetching blogs..."
+    print "Fetching blogs..."
     try:
         blogs = teblr.client.info()['user']['blogs']
-        print "Choose the blog you want to post: "
-        for i in range(0, len(blogs)):
-            print str(i+1) + ". "  + str(blogs[i]['name']) + " ("+str(blogs[i]['url'])+")"
+        if len(blogs) > 1:
+            print "Choose the blog you want to post: "
+            # print the available blogs
+            for i in range(0, len(blogs)):
+                print str(i+1) + ". "  + str(blogs[i]['name']) + " ("+str(blogs[i]['url'])+")"
+            # take the choice of blog to post
+            choice = raw_input("Enter choice (default 1): ")
+            if not choice:
+                blog_num = 0
+            else:
+                blog_num = int(choice) - 1
+        else:
+            blog_num = 0
     except:
         exit("Blog details fetch failed. Check your internet connection!")
     
-    choice = raw_input("Enter choice (default 1): ")
-    if not choice:
-        blog_num = 0
-    else:
-        blog_num = int(choice) - 1
-        
+       
     return blogs[blog_num]['name']
 
 
 def extract_post(blog, post_id):
-    global key
     params = {}
     params['id'] = post_id
-    params['api_key'] = teblr.key
+    params['api_key'] = console.key
     url = "https://api.tumblr.com/v2/blog/"+ blog +"/posts/text" 
     url = url + "?" + urllib.urlencode(params)
     try:
@@ -194,9 +261,9 @@ def args_parser():
     # post option - file source 
     file_source_group = parser_post.add_mutually_exclusive_group()
     file_source_group.add_argument('-u','--url', 
-            help='URL of the data, if any. Available for: photo, audio, video, link')
+            help='URL of the data, if any. Available for: photo, audio, video, link posts')
     file_source_group.add_argument('-f','--file', 
-            help='Path to the file, if any. Available for: photo, audio, video')
+            help='Path to the file, if any. Available for: photo, audio, video posts')
 
     # post option = post state
     post_state_group = parser_post.add_mutually_exclusive_group()
@@ -209,13 +276,13 @@ def args_parser():
     parser_post.add_argument('-d','--date', 
             help='Custom post date: dd-mm-yyyy')
     parser_post.add_argument('-c','--caption',
-            help='Post caption, if any Available for: photo, audio, video')
-    parser_post.add_argument('-e','--editor',
-            help='Open default editor for writing your post, if any. Available for: text')
+            help='Post caption, if any Available for: photo, audio, video posts')
+    parser_post.add_argument('-e','--editor', action='store_true',
+            help='Open default editor for writing your post. Available for: text posts')
     parser_post.add_argument('-s','--source',
-            help='Source of the post, if any. Available for: quote')
+            help='Source of the post, if any. Available for: quote posts')
     parser_post.add_argument('-q','--quote-text',
-            help='Add quote text as argument. Available for: quote')
+            help='Add quote text as argument. Available for: quote posts')
     parser_post.set_defaults(func=post_action)
 
     # edit command arguments
@@ -223,6 +290,8 @@ def args_parser():
             help='edit help')
     parser_edit.add_argument('-p', '--post-id', required=True,
             help='ID of the post that has to be edited')
+    parser_edit.add_argument('-e','--editor', action='store_true',
+            help='Open default editor for editing your post. Available for: text posts')
     parser_edit.set_defaults(func=edit_action)
 
     # delete command arguments

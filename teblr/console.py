@@ -11,7 +11,6 @@ import oauth2 as oauth
 import teblr
 
 global key
-
 def new_oauth(yaml_path):
     '''
     Return the consumer and oauth tokens with three-legged OAuth process and
@@ -80,9 +79,8 @@ def setup():
         tokens['oauth_token_secret']
     )
 
-    # global key
-
-    teblr.key = tokens['consumer_key']
+    global key
+    key = tokens['consumer_key']
 
     # code.interact(local=dict(globals(), **{'client': client}))
 
