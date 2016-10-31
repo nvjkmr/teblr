@@ -23,7 +23,9 @@
 <a id="teblr" class="anchor" href="#teblr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><strong>teblr</strong>
 </h1>
 
-<p>We all know that how much pathetic is Tumblr's OAuth, but we tried our best to get you comfort. Now post text, photo, quote, link, audio or video with just a single command from your terminal. Also edit and delete posts at breeze.</p>
+<p><img src="/teblr.png" alt="Tumblr on Termanal" title="teblr"></p>
+
+<p>Have you ever asked, how do I use tumblr on terminal? So here we are with <em>teblr</em>, a terminal based tool written in Python. We all know that how much pathetic is Tumblr's OAuth, but we tried our best to get you comfort. Now post text, photo, quote, link, audio or video with just a single command from your terminal. Also edit and delete posts at breeze.</p>
 
 <p>We give you three basic features with three sub-commands:</p>
 
@@ -72,12 +74,14 @@ optional arguments:
 <h2>
 <a id="tumblr-edit-usage" class="anchor" href="#tumblr-edit-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>tumblr edit</code> usage:</h2>
 
-<pre><code>usage: tumblr edit [-h] -p POST_ID
+<pre><code>usage: tumblr edit [-h] -p POST_ID [-e]
 
 optional arguments:
   -h, --help            show this help message and exit
   -p POST_ID, --post-id POST_ID
                         ID of the post that has to be edited
+  -e, --editor          Open default editor for editing your post. Available
+                        for: text posts
 </code></pre>
 
 <h2>
@@ -91,7 +95,7 @@ optional arguments:
                         ID of the post that has to be deleted
 </code></pre>
 
-<p><strong>NOTE:</strong> Editor support (<code>-e</code>) and <code>tumblr edit</code> are still under work. Any suggestions are welcome!</p>
+<p><strong>NOTE:</strong> Editor support (<code>-e</code>) is available for posting and editing text posts only.</p>
 
 <h1>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h1>
