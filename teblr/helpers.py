@@ -8,6 +8,9 @@ import teblr
 import os, sys, tempfile
 from subprocess import call
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 def post_action(args):
     blog_name = get_blog_name()
 
@@ -148,6 +151,7 @@ def create_client():
 
 def get_user_input(input_list, prevs=None):
     initial_msg = ""
+    d = dict()
     LINE_LENGTH = 50
 
     for i in range(0, len(input_list)):
@@ -165,15 +169,15 @@ def get_user_input(input_list, prevs=None):
     if not editor:
         print "Default editor not found! \n Opening in nano..."
     
-    try:
-        with tempfile.NamedTemporaryFile(suffix='.tmp') as tf:
-            tf.write(initial_msg)
-            tf.flush()
-            call([editor, tf.name])
-            tf.seek(0)
-            edited_msg = tf.read()
-    except:
-        exit("Please set a default editor!")
+    # try:
+    with tempfile.NamedTemporaryFile(suffix='.tmp') as tf:
+        tf.write(initial_msg)
+        tf.flush()
+        call([editor, tf.name])
+        tf.seek(0)
+        edited_msg = tf.read()
+    # except:
+        # exit("Unknown problem occurred while opening the file default editor!")
 
     edited_msg = edited_msg.split('-'*LINE_LENGTH)
     
@@ -182,8 +186,6 @@ def get_user_input(input_list, prevs=None):
     
     for i in range(0, len(input_list)):
             edited_msg[i] = edited_msg[i][len(input_list[i])+2 :]
-
-    d = {}
     for i in range(0, len(edited_msg)):
         d[input_list[i]] = edited_msg[i]
 
