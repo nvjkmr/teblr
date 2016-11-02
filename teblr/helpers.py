@@ -5,14 +5,19 @@ import urllib
 import urllib2
 import json
 import teblr
+import yaml
 import os, sys, tempfile
 from subprocess import call
 
 reload(sys)
-sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding('utf-8')     # default to unicode encoding
+global default_blog
 
 def post_action(args):
-    blog_name = get_blog_name()
+    if args.blog:
+        blog_name = args.blog
+    else:
+        blog_name = get_blog_name()
 
     data_req = dict()
     data_req['text'] = ['title', 'body']
@@ -73,7 +78,11 @@ def post_action(args):
         print "Done... Your blog post has been pushed!"
 
 def edit_action(args):
-    blog_name = get_blog_name()
+    if args.blog:
+        blog_name = args.blog
+    else:
+        blog_name = get_blog_name()
+
     print "Fetching previous post"
     prevs_data = extract_post(blog_name, args.post_id) 
     post_type = prevs_data['type']
@@ -135,8 +144,12 @@ def edit_action(args):
 
 
 def delete_action(args):
-    blog_name = get_blog_name()
-    print 'deleting'
+    if args.blog:
+        blog_name = args.blog
+    else:
+        blog_name = get_blog_name()
+    
+    print 'Deleting...'
     r = teblr.delete_post(blog_name, args.post_id)
     
     if 'meta' in r and 'errors' in r['response']:
@@ -167,17 +180,17 @@ def get_user_input(input_list, prevs=None):
     editor = os.environ.get('EDITOR', 'nano')
 
     if not editor:
-        print "Default editor not found! \n Opening in nano..."
+        exit("Editor not found! Please set a default editor.")
     
-    # try:
-    with tempfile.NamedTemporaryFile(suffix='.tmp') as tf:
-        tf.write(initial_msg)
-        tf.flush()
-        call([editor, tf.name])
-        tf.seek(0)
-        edited_msg = tf.read()
-    # except:
-        # exit("Unknown problem occurred while opening the file default editor!")
+    try:
+        with tempfile.NamedTemporaryFile(suffix='.tmp') as tf:
+            tf.write(initial_msg)
+            tf.flush()
+            call([editor, tf.name])
+            tf.seek(0)
+            edited_msg = tf.read()
+    except:
+        exit("Unknown problem occurred while processing temporary file!")
 
     edited_msg = edited_msg.split('-'*LINE_LENGTH)
     
@@ -199,12 +212,17 @@ def get_post_data(details_list):
     return data
 
 
-def get_blog_name():
+def get_blog_name(no_defaults=False):
+    global default_blog
+    if not no_defaults:
+        if default_blog != None:
+            return default_blog
+
     print "Fetching blogs..."
     try:
         blogs = teblr.client.info()['user']['blogs']
+        print('Please choose a blog')
         if len(blogs) > 1:
-            print "Choose the blog you want to post: "
             # print the available blogs
             for i in range(0, len(blogs)):
                 print str(i+1) + ". "  + str(blogs[i]['name']) + " ("+str(blogs[i]['url'])+")"
@@ -240,9 +258,38 @@ def extract_post(blog, post_id):
     return post_data
 
 
+def set_action(args):
+    if args.default_blog:
+        yaml_path = os.path.expanduser('~') + '/.tumblr'
+        yaml_file = open(yaml_path, 'r')
+        tokens = yaml.safe_load(yaml_file)
+        yaml_file.close()
+        default_blog = get_blog_name(True)
+        tokens['default_blog'] = default_blog.encode('ascii', 'ignore')
+        yaml_file = open(yaml_path, 'w+')
+        yaml.dump(tokens, yaml_file, indent=2)
+        yaml_file.close()
+        print "Your default blog has been set!"
+    if args.setup:
+        print "Initializing fresh setup..."
+        path = os.path.expanduser('~') + '/.tumblr'
+        os.remove(path)
+        console.setup()
+        print "Setup finished!"
+
+
 def args_parser():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='ACTION help', metavar='ACTION')
+
+    # set command arguments
+    parser_set = subparsers.add_parser('set', help='set help')
+    set_group = parser_set.add_mutually_exclusive_group(required=True)
+    set_group.add_argument('-db', '--default-blog', action='store_true',
+            help='Set default blog for your actions')
+    set_group.add_argument('-su', '--setup', action='store_true',
+            help='Use this to run fresh setup')
+    parser_set.set_defaults(func=set_action)
 
     # post command arguments
     parser_post = subparsers.add_parser('post', help='post help')
@@ -273,7 +320,6 @@ def args_parser():
     post_state_group.add_argument('--draft', action='store_const', const='draft', help='Add post to drafts', dest='state')
     post_state_group.add_argument('--queue', action='store_const', const='queue', help='Add post to queue', dest='state')
 
-
     # post options
     parser_post.add_argument('-d','--date', 
             help='Custom post date: dd-mm-yyyy')
@@ -285,6 +331,7 @@ def args_parser():
             help='Source of the post, if any. Available for: quote posts')
     parser_post.add_argument('-q','--quote-text',
             help='Add quote text as argument. Available for: quote posts')
+    parser_post.add_argument('-b', '--blog', help='Mention blog to post content.')
     parser_post.set_defaults(func=post_action)
 
     # edit command arguments
@@ -294,6 +341,7 @@ def args_parser():
             help='ID of the post that has to be edited')
     parser_edit.add_argument('-e','--editor', action='store_true',
             help='Open default editor for editing your post. Available for: text posts')
+    parser_edit.add_argument('-b', '--blog', help='Mention blog to edit content.')
     parser_edit.set_defaults(func=edit_action)
 
     # delete command arguments
@@ -301,6 +349,7 @@ def args_parser():
             help='delete help')
     parser_delete.add_argument('-p','--post-id', required=True,
             help='ID of the post that has to be deleted')
+    parser_delete.add_argument('-b', '--blog', help='Mention blog to delete content.')
     parser_delete.set_defaults(func=delete_action)
 
     return parser.parse_args()

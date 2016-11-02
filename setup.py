@@ -5,15 +5,15 @@ from setuptools import setup
 setup(
 
     name="teblr",
-    version="0.0.1.1",
+    version="0.0.2",
     description="Tumblr on command line",
-    long_description="Tumblr on command line for Terminal and Linux lovers.",
-    keywords="tumblr terminal commandline blogging",
+    long_description="Tumblr on command line written in Python for Terminal and Linux lovers.",
+    keywords="tumblr terminal commandline blogging linux",
     author="Vijay Kumar",
     author_email="nvijaykumar2012@gmail.com",
-    url="https://github.com/vijaykumarhackr/teblr/",
+    url="http://nvijaykumar.me/teblr/",
     packages = ['teblr'],
-    license = "GPL 3",
+    license = "Apache 2.0",
 
     # test_suite='nose.collector',
 

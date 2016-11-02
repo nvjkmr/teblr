@@ -6,9 +6,20 @@ Have you ever asked, how do I use tumblr on terminal? So here we are with *teblr
 
 We give you three basic features with three sub-commands:
 ```
+tumblr set
 tumblr post
 tumblr edit
 tumblr delete
+```
+
+##`tumblr set` usage:
+```
+usage: tumblr set [-h] (-db | -su)
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -db, --default-blog  Set default blog for your actions
+  -su, --setup         Use this to run fresh setup
 ```
 
 ##`tumblr post` usage:
@@ -16,8 +27,8 @@ tumblr delete
 usage: tumblr post [-h]
                    (--photo | --text | --quote | --link | --audio | --video)
                    [-u URL | -f FILE] [--private | --draft | --queue]
-                   [-d DATE] [-c CAPTION] [-e EDITOR] [-s SOURCE]
-                   [-q QUOTE_TEXT]
+                   [-d DATE] [-c CAPTION] [-e] [-s SOURCE] [-q QUOTE_TEXT]
+                   [-b BLOG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -28,28 +39,28 @@ optional arguments:
   --audio               Post an audio to your blog
   --video               Post a video to your blog
   -u URL, --url URL     URL of the data, if any. Available for: photo, audio,
-                        video, link
+                        video, link posts
   -f FILE, --file FILE  Path to the file, if any. Available for: photo, audio,
-                        video
+                        video posts
   --private             Set post visibility to only you
   --draft               Add post to drafts
   --queue               Add post to queue
   -d DATE, --date DATE  Custom post date: dd-mm-yyyy
   -c CAPTION, --caption CAPTION
                         Post caption, if any Available for: photo, audio,
-                        video
-  -e EDITOR, --editor EDITOR
-                        Open default editor for writing your post, if any.
-                        Available for: text
+                        video posts
+  -e, --editor          Open default editor for writing your post. Available
+                        for: text posts
   -s SOURCE, --source SOURCE
-                        Source of the post, if any. Available for: quote
+                        Source of the post, if any. Available for: quote posts
   -q QUOTE_TEXT, --quote-text QUOTE_TEXT
-                        Add quote text as argument. Available for: quote
+                        Add quote text as argument. Available for: quote posts
+  -b BLOG, --blog BLOG  Mention blog to post content.
 ```
 
 ##`tumblr edit` usage:
 ```
-usage: tumblr edit [-h] -p POST_ID [-e]
+usage: tumblr edit [-h] -p POST_ID [-e] [-b BLOG]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -57,21 +68,25 @@ optional arguments:
                         ID of the post that has to be edited
   -e, --editor          Open default editor for editing your post. Available
                         for: text posts
+  -b BLOG, --blog BLOG  Mention blog to edit content.
 ```
 
 ##`tumblr delete` usage:
 ```
-usage: tumblr delete [-h] -p POST_ID
+usage: tumblr delete [-h] -p POST_ID [-b BLOG]
 
 optional arguments:
   -h, --help            show this help message and exit
   -p POST_ID, --post-id POST_ID
                         ID of the post that has to be deleted
+  -b BLOG, --blog BLOG  Mention blog to delete content.
 ```
 
 **NOTE:** Editor support (`-e`) is available for posting and editing text posts only.
 
 # Installation
+
+##Using pip
 Install pip using the following commands:
 ```
 $ sudo apt-get install python-pip python-dev build-essential 
@@ -81,6 +96,14 @@ $ sudo pip install --upgrade virtualenv
 Install teblr using pip:
 ```
 $ sudo pip install teblr
+```
+
+##Manual install
+```
+$ sudo apt-get install python-dev build-essential
+$ git clone https://github.com/VijayKumarHackr/teblr.git
+$ cd teblr/
+$ sudo python setup.py install
 ```
 
 # Contribution
