@@ -7,6 +7,7 @@ import json
 import teblr
 import yaml
 import os, sys, tempfile
+from urlparse import urlsplit
 from subprocess import call
 
 reload(sys)
@@ -84,20 +85,16 @@ def edit_action(args):
         blog_name = get_blog_name()
 
     print "Fetching previous post"
-    prevs_data = extract_post(blog_name, args.post_id) 
+    post_id = get_post_id(args.pid)
+    prevs_data = extract_post(blog_name, post_id) 
     post_type = prevs_data['type']
     data_req = dict()
     data_req['text'] = ['title', 'body']
     data_req['link'] = ['title', 'description', 'url']
     
-    # print "Printing previous post data..."
-    # for key, value in prevs_data.iteritems(): # dig deep
-        # print value
-    # print "==="*20
-    
     post_data = {}      # holds new data
     post_data['type'] = post_type   # required in teblr.__init__.py
-    post_data['id'] = args.post_id
+    post_data['id'] = post_id
     if post_type == 'text':
         if (args.editor):
             d = get_user_input(data_req['text'], prevs_data)
@@ -134,7 +131,6 @@ def edit_action(args):
     else:
         print "Unsupported post type found!"
 
-
     r = teblr.edit_post(blog_name, post_data)
     
     if 'meta' in r and 'errors' in r['response']:
@@ -150,7 +146,8 @@ def delete_action(args):
         blog_name = get_blog_name()
     
     print 'Deleting...'
-    r = teblr.delete_post(blog_name, args.post_id)
+    post_id = get_post_id(args.pid)
+    r = teblr.delete_post(blog_name, post_id)
     
     if 'meta' in r and 'errors' in r['response']:
         print str(r['meta']['status']) + " status code returned! "+ str(r['response']['errors'])
@@ -161,6 +158,20 @@ def delete_action(args):
 def create_client():
     return console.setup()
 
+def get_post_id(inp_str):
+    t = len(inp_str.split('/'))
+    if t > 1:
+        # do some fancy stuff
+        parsed = urlsplit(inp_str)
+        el = parsed.path.split('/')
+        if el[1] == 'post':
+            return el[2]
+        else:
+            exit("Cannot parse URL to fetch post id!")
+    elif t == 1:
+        return inp_str
+    else:
+        exit("Unknown error occurred while getting post id")
 
 def get_user_input(input_list, prevs=None):
     initial_msg = ""
@@ -338,9 +349,15 @@ def args_parser():
     # edit command arguments
     parser_edit = subparsers.add_parser('edit',
             help='edit help')
-    parser_edit.add_argument('-p', '--post-id', required=True,
-            help='ID of the post that has to be edited')
-    parser_edit.add_argument('-e','--editor', action='store_true',
+    
+    # group post by it's type of specification
+    post_specify = parser_edit.add_mutually_exclusive_group(required=True)
+    post_specify.add_argument('-u', '--url',
+            help='URL of the post that has to be edited', dest='pid')
+    post_specify.add_argument('-p', '--post-id',
+            help='ID of the post that has to be edited', dest='pid')
+
+    parser_edit.add_argument('-e', '--editor', action='store_true',
             help='Open default editor for editing your post. Available for: text posts')
     parser_edit.add_argument('-b', '--blog', help='Mention blog to edit content.')
     parser_edit.set_defaults(func=edit_action)
@@ -348,11 +365,17 @@ def args_parser():
     # delete command arguments
     parser_delete = subparsers.add_parser('delete',
             help='delete help')
-    parser_delete.add_argument('-p','--post-id', required=True,
-            help='ID of the post that has to be deleted')
+   
+    # group post by it's type of specification
+    post_del_specify = parser_delete.add_mutually_exclusive_group(required=True)
+    post_del_specify.add_argument('-u', '--url',
+            help='URL of the post that has to be edited', dest='pid')
+    post_del_specify.add_argument('-p', '--post-id',
+            help='ID of the post that has to be edited', dest='pid')
+ 
     parser_delete.add_argument('-b', '--blog', help='Mention blog to delete content.')
     parser_delete.set_defaults(func=delete_action)
-
+   
     return parser.parse_args()
 
 def parse_date(date):

@@ -60,11 +60,12 @@ optional arguments:
 
 ##`tumblr edit` usage:
 ```
-usage: tumblr edit [-h] -p POST_ID [-e] [-b BLOG]
+usage: tumblr edit [-h] (-u PID | -p PID) [-e] [-b BLOG]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p POST_ID, --post-id POST_ID
+  -u PID, --url PID     URL of the post that has to be edited
+  -p PID, --post-id PID
                         ID of the post that has to be edited
   -e, --editor          Open default editor for editing your post. Available
                         for: text posts
@@ -73,13 +74,15 @@ optional arguments:
 
 ##`tumblr delete` usage:
 ```
-usage: tumblr delete [-h] -p POST_ID [-b BLOG]
+usage: tumblr delete [-h] (-u PID | -p PID) [-b BLOG]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p POST_ID, --post-id POST_ID
-                        ID of the post that has to be deleted
+  -u PID, --url PID     URL of the post that has to be edited
+  -p PID, --post-id PID
+                        ID of the post that has to be edited
   -b BLOG, --blog BLOG  Mention blog to delete content.
+
 ```
 
 **NOTE:** Editor support (`-e`) is available for posting and editing text posts only.
