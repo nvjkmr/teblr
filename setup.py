@@ -5,7 +5,7 @@ from setuptools import setup
 setup(
 
     name="teblr",
-    version="0.0.2",
+    version="0.0.3",
     description="Tumblr on command line",
     long_description="Tumblr on command line written in Python for Terminal and Linux lovers.",
     keywords="tumblr terminal commandline blogging linux",
@@ -17,21 +17,10 @@ setup(
 
     # test_suite='nose.collector',
 
-    entry_points = {
-        'console_scripts' : ['tumblr=teblr.main:main'],
-        },
-
+    scripts = ['bin/tumblr'],
 
     install_requires = [
-        'pytumblr',
+        'pytumblr', 'pyyaml'
     ],
-
-    # include_package_data=True,
-
-    # tests_require=[
-    #     'nose',
-    #     'nose-cov',
-    #     'mock'
-    # ]
 
 )

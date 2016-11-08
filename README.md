@@ -86,7 +86,6 @@ optional arguments:
 
 # Installation
 
-##Using pip
 Install pip using the following commands:
 ```
 $ sudo apt-get install python-pip python-dev build-essential 
@@ -95,15 +94,11 @@ $ sudo pip install --upgrade virtualenv
 ```
 Install teblr using pip:
 ```
-$ sudo pip install teblr
+$ sudo pip install -e git+https://github.com/VijayKumarHackr/teblr.git#egg=teblr
 ```
-
-##Manual install
+Setting up teblr:
 ```
-$ sudo apt-get install python-dev build-essential
-$ git clone https://github.com/VijayKumarHackr/teblr.git
-$ cd teblr/
-$ sudo python setup.py install
+$ tumblr set --setup
 ```
 
 # Contribution

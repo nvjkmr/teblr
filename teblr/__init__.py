@@ -1,8 +1,14 @@
 import helpers
  
+def main():
+    global client
+    client = helpers.create_client()
+    args = helpers.args_parser()
+    args.func(args)
+
+
 def make_post(blog_name, post_type, post_data):
     global client
-
     if post_type == 'text':
         resp = client.create_text(blog_name, **post_data)
     elif post_type == 'video':
@@ -17,7 +23,6 @@ def make_post(blog_name, post_type, post_data):
         resp = client.create_photo(blog_name, **post_data)
     else: 
         print "Unknow Post Type Found!"
-        
     return resp
 
 

@@ -233,6 +233,7 @@ def get_blog_name(no_defaults=False):
             else:
                 blog_num = int(choice) - 1
         else:
+            print "You have only 1 blog! Choosing it..."
             blog_num = 0
     except:
         exit("Blog details fetch failed. Check your internet connection!")
