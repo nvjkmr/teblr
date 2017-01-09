@@ -91,8 +91,11 @@ def new_oauth(yaml_path):
 
     return tokens
 
-def setup():
+def setup(val):
     yaml_path = os.path.expanduser('~') + '/.tumblr'
+    
+    if(val == 1):
+        os.remove(yaml_path)
 
     if not os.path.exists(yaml_path):
         try:

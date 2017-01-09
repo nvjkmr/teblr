@@ -125,6 +125,8 @@ def edit_action(args):
         post_data['title'] = console_input['title']
         post_data['description'] = console_input['description']
     elif post_type == 'photo':
+        data_req = ['caption', 'file']
+        console_input = get_post_data(data_req)
         post_data['source'] = console_input['url']                  # link to file
         post_data['data'] = console_input['file']
         post_data['caption'] = console_input['caption']
@@ -285,8 +287,7 @@ def set_action(args):
     if args.setup:
         print "Initializing fresh setup..."
         path = os.path.expanduser('~') + '/.tumblr'
-        os.remove(path)
-        console.setup()
+        console.setup(1)
         print "Setup finished!"
 
 

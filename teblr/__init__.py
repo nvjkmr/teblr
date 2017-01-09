@@ -1,9 +1,12 @@
 import helpers
  
 def main():
+    args = helpers.args_parser()
+    if(hasattr(args, 'setup') and args.setup == True):
+        args.func(args)
+        exit()
     global client
     client = helpers.create_client()
-    args = helpers.args_parser()
     args.func(args)
 
 
