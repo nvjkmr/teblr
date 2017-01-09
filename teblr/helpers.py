@@ -287,7 +287,7 @@ def set_action(args):
     if args.setup:
         print "Initializing fresh setup..."
         path = os.path.expanduser('~') + '/.tumblr'
-        console.setup(1)
+        console.setup(True)
         print "Setup finished!"
 
 
